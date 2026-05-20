@@ -1,0 +1,18 @@
+# 思岚激光雷达（S2）驱动节点配置
+sllidar_node:
+  ros__parameters:
+    # 通信类型：串口通信
+    channel_type: "serial"
+    # 雷达串口设备路径
+    serial_port: "/dev/ttyUSB1"
+    # 串口波特率
+    serial_baudrate: 1000000
+    # 雷达坐标系名称
+    frame_id: "laser"
+    # 是否翻转雷达（镜像）
+    inverted: false
+    # 角度补偿（使扫描更均匀）
+    angle_compensate: true
+    # 雷达扫描模式：高密度增强模式
+    scan_mode: "DenseBoost"
+

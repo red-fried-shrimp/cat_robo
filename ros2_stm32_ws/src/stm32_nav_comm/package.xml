@@ -1,0 +1,24 @@
+<?xml version="1.0"?>                                      <!-- XML文件版本声明 -->
+<package format="3">                                       <!-- ROS2包配置根节点，format=3为ROS2 Humble及以上版本格式 -->
+  <name>stm32_nav_comm</name>                              <!-- 功能包名称，需与CMakeLists.txt中的project名一致 -->
+  <version>0.0.1</version>                                 <!-- 功能包版本号，初始版本0.0.1 -->
+  <description>STM32 serial bridge for cmd_vel and odom on ROS2 Humble</description> <!-- 功能包描述：ROS2 Humble下STM32与cmd_vel/odom的串口桥接包 -->
+
+  <maintainer email="you@example.com">you</maintainer>          <!-- 维护者信息：邮箱和名称（需替换为实际信息） -->
+  <license>Apache-2.0</license>                      <!-- 开源许可证类型：Apache 2.0 -->
+
+  <buildtool_depend>ament_cmake</buildtool_depend>   <!-- 构建工具依赖：ROS2的ament_cmake构建系统 -->
+
+  <depend>rclcpp</depend>                        <!-- 运行时依赖：ROS2 C++客户端库 -->
+  <depend>geometry_msgs</depend>                 <!-- 运行时依赖：几何消息类型包（Twist） -->
+  <depend>nav_msgs</depend>                      <!-- 运行时依赖：导航消息类型包（Odometry） -->
+  <depend>std_msgs</depend>                      <!-- 运行时依赖：标准消息类型包（UInt8） -->
+  <depend>tf2</depend>                           <!-- 运行时依赖：TF2坐标变换核心库 -->
+  <depend>tf2_ros</depend>                       <!-- 运行时依赖：TF2 ROS接口库 -->
+  <depend>serial</depend>                        <!-- 运行时依赖：串口通信库 -->
+
+  <export>
+    <build_type>ament_cmake</build_type>        <!-- 导出构建类型：声明使用ament_cmake构建 -->
+  </export>
+</package>
+

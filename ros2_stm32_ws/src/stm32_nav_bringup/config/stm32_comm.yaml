@@ -1,0 +1,25 @@
+# STM32 底盘驱动节点参数配置
+stm32_comm_node:
+  ros__parameters:
+    # 串口设备路径
+    stm32_serial_port: "/dev/ttyUSB0"
+    # 串口波特率
+    stm32_baud_rate: 115200
+
+    # 里程计坐标系名称
+    odom_frame: "odom"
+    # 机器人基坐标系名称
+    base_frame: "base_link"
+    # 是否自动发布 odom -> base_link 的TF坐标变换
+    publish_tf: true
+
+    # 车轮半径（单位：米）
+    wheel_radius: 0.042
+    # 两轮间距（轮距，单位：米）
+    wheel_base: 0.1977
+
+    # 指令超时时间（秒）
+    cmd_timeout_sec: 2.0
+    # 里程计数据超时时间（秒）
+    odom_timeout_sec: 0.5
+

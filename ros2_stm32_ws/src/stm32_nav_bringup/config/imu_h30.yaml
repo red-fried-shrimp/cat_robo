@@ -1,0 +1,12 @@
+# 元生IMU传感器节点参数配置
+yesense_pub:
+  ros__parameters:
+    # IMU串口设备路径
+    port: "/dev/ttyACM0"
+    # 串口通信波特率
+    baud_rate: 460800
+    # IMU传感器坐标系ID
+    frame_id: "gyro_link"
+    # IMU数据发布话题名称
+    imu_topic: "/imu/data"
+

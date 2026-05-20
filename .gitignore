@@ -1,0 +1,34 @@
+# ROS 2 / colcon
+ros2_stm32_ws/build/
+ros2_stm32_ws/install/
+ros2_stm32_ws/log/
+
+# Python cache
+**/__pycache__/
+*.pyc
+*.pyo
+
+# C/C++ and CMake generated files
+*.o
+*.a
+*.so
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Editor settings
+.vscode/
+**/.vscode/
+
+# Archives
+*.zip
+
+# Generated TF diagrams
+ros2_stm32_ws/frames_*.gv
+ros2_stm32_ws/frames_*.pdf
+
+# ROS runtime data
+*.bag
+*.db3
+*.mcap
+.ros/

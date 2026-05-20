@@ -1,0 +1,89 @@
+# RViz面板配置
+Panels:
+  - Class: rviz_common/Displays    # 显示面板（核心）
+    Name: Displays
+  - Class: rviz_common/Tool Properties # 工具属性面板
+    Name: Tool Properties
+  - Class: rviz_common/Views       # 视角面板
+    Name: Views
+
+# 可视化管理器（核心配置）
+Visualization Manager:
+  Class: ""
+  Name: root
+
+  # 全局选项
+  Global Options:
+    Fixed Frame: map       # 固定坐标系为map（建图时以地图为基准）
+    Frame Rate: 20         # 渲染帧率20Hz（降低RViz资源占用，解决队列溢出）
+
+  # 显示项配置（按需启用，避免队列堆积）
+  Displays:
+    # 1. 网格显示（辅助定位）
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true        # 启用网格
+      Plane: XY            # 网格平面（XY平面，符合机器人运动平面）
+      Cell Size: 1         # 网格单元格大小（1m）
+      Plane Cell Count: 20 # 网格单元格数量（20x20）
+
+    # 2. TF变换显示（查看坐标系关系）
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true        # 启用TF显示
+      Show Names: true     # 显示坐标系名称
+      Show Arrows: true    # 显示坐标系箭头
+      Show Axes: false     # 关闭坐标系轴（减少渲染压力）
+
+    # 3. 激光雷达扫描显示（核心建图数据）
+    - Class: rviz_default_plugins/LaserScan
+      Name: LaserScan
+      Enabled: true        # 启用激光扫描显示
+      Topic:
+        Value: /scan       # 订阅激光话题
+      Queue Size: 50       # 队列大小50（解决激光数据堆积）
+      Size (Pixels): 2     # 激光点大小（2像素，清晰易见）
+      Style: Flat Squares  # 激光点样式（扁平方块）
+
+    # 4. 地图显示（建图结果）
+    - Class: rviz_default_plugins/Map
+      Name: Map
+      Enabled: true        # 启用地图显示
+      Topic:
+        Value: /map        # 订阅地图话题
+      Alpha: 0.7           # 地图透明度（0.7，兼顾激光和地图）
+      Color Scheme: map    # 地图配色方案
+      Draw Behind: false   # 不绘制在其他图层后
+
+    # 5. 里程计显示（暂时关闭，解决队列溢出）
+    - Class: rviz_default_plugins/Odometry
+      Name: Odometry
+      Enabled: false       # 关闭里程计显示（核心修改，减少队列压力）
+      Topic:
+        Value: /odom       # 里程计话题
+      Keep: 50             # 保留帧数50（启用时防止丢失）
+      Shape:
+        Value: Arrow       # 里程计显示形状（箭头）
+
+  # 工具配置（建图/导航常用工具）
+  Tools:
+    - Class: rviz_default_plugins/Interact        # 交互工具
+    - Class: rviz_default_plugins/MoveCamera      # 移动视角工具
+    - Class: rviz_default_plugins/Select          # 选择工具
+    - Class: rviz_default_plugins/SetInitialPose  # 设置初始位姿工具
+      Topic:
+        Value: /initialpose                      # 初始位姿话题
+    - Class: rviz_default_plugins/SetGoal         # 设置目标点工具
+      Topic:
+        Value: /goal_pose                        # 目标点话题
+
+  # 视角配置
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit   # 轨道视角（方便查看全局地图）
+      Distance: 8                         # 视角距离（8m，能看到大范围地图）
+      Focal Point:
+        X: 0                              # 焦点X坐标
+        Y: 0                              # 焦点Y坐标
+        Z: 0                              # 焦点Z坐标
+
