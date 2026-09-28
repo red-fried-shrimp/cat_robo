@@ -30,7 +30,7 @@ Visualization Manager:
     # 2. TF变换显示（查看坐标系关系）
     - Class: rviz_default_plugins/TF
       Name: TF
-      Enabled: true        # 启用TF显示
+      Enabled: true        # 启用TF坐标箭头显示
       Show Names: true     # 显示坐标系名称
       Show Arrows: true    # 显示坐标系箭头
       Show Axes: false     # 关闭坐标系轴（减少渲染压力）
@@ -55,10 +55,10 @@ Visualization Manager:
       Color Scheme: map    # 地图配色方案
       Draw Behind: false   # 不绘制在其他图层后
 
-    # 5. 里程计显示（暂时关闭，解决队列溢出）
+    # 5. 里程计显示（默认关闭，避免红色箭头遮挡地图）
     - Class: rviz_default_plugins/Odometry
       Name: Odometry
-      Enabled: false       # 关闭里程计显示（核心修改，减少队列压力）
+      Enabled: false       # 关闭里程计箭头
       Topic:
         Value: /odom       # 里程计话题
       Keep: 50             # 保留帧数50（启用时防止丢失）
@@ -86,4 +86,3 @@ Visualization Manager:
         X: 0                              # 焦点X坐标
         Y: 0                              # 焦点Y坐标
         Z: 0                              # 焦点Z坐标
-

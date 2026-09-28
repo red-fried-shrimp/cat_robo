@@ -2,7 +2,7 @@
 stm32_comm_node:
   ros__parameters:
     # 串口设备路径
-    stm32_serial_port: "/dev/ttyUSB0"
+    stm32_serial_port: "/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0"
     # 串口波特率
     stm32_baud_rate: 115200
 
@@ -12,6 +12,10 @@ stm32_comm_node:
     base_frame: "base_link"
     # 是否自动发布 odom -> base_link 的TF坐标变换
     publish_tf: true
+    # 是否持续强制底盘保持 ROS2 控制模式
+    force_ros2_mode: true
+    # 是否只读 STM32 里程计；true 时不会向 STM32 发送模式或速度控制帧
+    read_only: false
 
     # 车轮半径（单位：米）
     wheel_radius: 0.042
@@ -22,4 +26,5 @@ stm32_comm_node:
     cmd_timeout_sec: 2.0
     # 里程计数据超时时间（秒）
     odom_timeout_sec: 0.5
-
+    # 安全停车指令最小发送周期（秒）
+    safety_stop_period_sec: 0.2

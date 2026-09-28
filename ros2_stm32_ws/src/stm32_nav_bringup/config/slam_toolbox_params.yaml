@@ -8,10 +8,20 @@ slam_toolbox:
     map_frame: map          # 地图坐标系
     base_frame: base_link   # 机器人基坐标系
     scan_topic: /scan       # 激光雷达话题名
+    transform_timeout: 0.2   # 等待 odom/base_link/laser TF 的最长时间
+    tf_buffer_duration: 30.0 # TF缓存时长，过短会导致激光时间戳查不到变换
 
     # 运行模式：mapping=建图，localization=定位
     mode: mapping
     resolution: 0.05        # 地图分辨率（0.05m/像素，平衡精度与性能）
+
+    # 优化器插件参数；显式写出可避免不同 slam_toolbox 版本默认值差异
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
 
     # 激光雷达参数（解决"minimum laser range"警告的核心项）
     min_laser_range: 0.1   # 激光最小有效距离（匹配雷达硬件能力0.1m）
@@ -20,15 +30,19 @@ slam_toolbox:
     # 时间间隔配置
     minimum_time_interval: 0.05    # 最小处理时间间隔（20Hz，匹配雷达频率）
     transform_publish_period: 0.05 # TF变换发布周期（20Hz）
-    map_update_interval: 2.0       # 地图更新周期（2秒更新一次，降低资源占用）
+    map_update_interval: 1.0       # 地图更新周期（1秒更新一次，兼顾实时性和性能）
+    throttle_scans: 1              # 每帧激光都参与建图
+    stack_size_to_use: 40000000    # 大地图序列化需要较大的栈空间
+    enable_interactive_mode: true  # 允许 RViz 交互式调整/保存图
 
     # 扫描匹配配置
     use_scan_matching: true        # 启用扫描匹配（提升建图精度）
     use_scan_barycenter: true      # 使用扫描重心（优化匹配稳定性）
-    minimum_travel_distance: 0.05  # 最小移动距离（机器人移动0.05m才更新地图）
+    use_scan_matching_ceres: true  # 启用Ceres优化器（提高闭环匹配精度）
+    minimum_travel_distance: 0.1   # 最小移动距离（0.1m才更新地图，避免抖动触发）
     minimum_travel_heading: 0.05   # 最小旋转角度（0.05rad≈2.86°才更新地图）
-    scan_buffer_size: 30           # 扫描缓存大小（保存30帧激光数据）
-    scan_buffer_maximum_scan_distance: 15.0 # 缓存中激光最大有效距离
+    scan_buffer_size: 50           # 扫描缓存大小（保存50帧激光数据）
+    scan_buffer_maximum_scan_distance: 20.0 # 缓存中激光最大有效距离（匹配雷达量程）
 
     # 闭环检测-链路匹配配置
     link_match_minimum_response_fine: 0.1  # 精细匹配最小响应值（越高越严格）
@@ -61,4 +75,3 @@ slam_toolbox:
     minimum_angle_penalty: 0.9           # 最小角度惩罚
     minimum_distance_penalty: 0.5        # 最小距离惩罚
     use_response_expansion: true         # 启用响应扩展（提升匹配鲁棒性）
-

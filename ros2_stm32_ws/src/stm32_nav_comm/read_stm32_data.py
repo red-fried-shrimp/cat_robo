@@ -3,7 +3,7 @@ import serial
 import time
 
 # 配置串口（核心：与STM32一致）
-SERIAL_PORT = "/dev/ttyUSB0"
+SERIAL_PORT = "/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0"
 BAUDRATE = 115200  # 改为你的STM32串口波特率
 
 def read_stm32_data():
@@ -38,4 +38,3 @@ def read_stm32_data():
 
 if __name__ == "__main__":
     read_stm32_data()
-

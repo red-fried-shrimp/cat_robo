@@ -15,6 +15,7 @@
 #include "tf2_ros/transform_broadcaster.h"           // TF坐标广播
 
 #pragma pack(push, 1)               // 1字节对齐，紧凑结构体
+// STM32 上报的二进制里程计结构，字段顺序必须和下位机协议保持一致。
 struct OdomFeedback                  // 底盘里程计反馈结构体
 {
     uint32_t tick_ms;                // 系统时间戳 ms
@@ -30,7 +31,7 @@ class Stm32CommNode : public rclcpp::Node  // ROS2节点类
 {
 public:
     Stm32CommNode();                 // 构造函数
-    ~Stm32CommNode() override = default;  // 默认析构
+    ~Stm32CommNode() override;       // 析构时向底盘补发零速度
 
 private:
     static constexpr uint8_t FRAME_HEAD = 0xAA;  // 帧头
@@ -38,34 +39,42 @@ private:
 
     static constexpr uint8_t CMD_VEL  = 0x01;    // 速度指令
     static constexpr uint8_t CMD_NAV  = 0x02;    // 导航指令
-    static constexpr uint8_t CMD_ODOM = 0x04;    // 里程计指令
+    static constexpr uint8_t CMD_ODOM = 0x04;    // 里程计上报指令
     static constexpr uint8_t CMD_MODE = 0x05;    // 模式切换指令
 
     static constexpr uint8_t MODE_MANUAL = 0;    // 手动模式
     static constexpr uint8_t MODE_ROS2   = 1;    // ROS2控制模式
 
-    // 速度指令订阅回调
+    // 速度指令订阅回调：把 ROS 坐标系 /cmd_vel 转成 STM32 坐标系并写入串口。
     void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
-    void pollSerial();                  // 轮询串口数据
+    // 轮询串口数据：读取缓存、拆包、分发帧，并执行速度/里程计超时保护。
+    void pollSerial();
 
-    // 发送速度指令
+    // 发送速度指令：按 AA CMD LEN DATA XOR 55 协议打包 vx/vy/wz。
     void sendCmdVel(float vx, float vy, float wz);
-    void sendMode(uint8_t mode);        // 发送控制模式
+    // 发送控制模式：切换 STM32 手动模式/ROS2 控制模式。
+    void sendMode(uint8_t mode);
+    // 安全停车：切到 ROS2 模式并发送 0 速度。
+    void sendSafetyStop();
 
-    // 尝试解析一帧数据
+    // 尝试解析一帧数据：成功时从 rx_buffer_ 移除完整帧并写入 frame。
     bool tryParseOneFrame(std::vector<uint8_t>& frame);
-    void handleFrame(const std::vector<uint8_t>& frame);  // 处理完整帧
-    void handleOdomFrame(const std::vector<uint8_t>& payload);  // 处理里程计帧
+    // 处理完整帧：根据命令字分发到具体业务处理函数。
+    void handleFrame(const std::vector<uint8_t>& frame);
+    // 处理里程计帧：解包 OdomFeedback，发布状态，并触发里程计积分。
+    void handleOdomFrame(const std::vector<uint8_t>& payload);
 
-    // 根据轮速更新里程计
+    // 根据轮速更新里程计：三轮底盘逆运动学 -> ROS 速度 -> 世界坐标积分。
     void updateOdometryFromWheelSpeeds(
         double omega_a, double omega_b, double omega_d,
-        const rclcpp::Time& now);
+        uint32_t tick_ms, const rclcpp::Time& now);
 
-    void publishOdometry(const rclcpp::Time& stamp);  // 发布里程计
-    void publishTransform(const rclcpp::Time& stamp); // 发布TF坐标变换
+    // 发布里程计消息：输出 /odom，供 slam_toolbox/Nav2/调试工具使用。
+    void publishOdometry(const rclcpp::Time& stamp);
+    // 发布 TF 坐标变换：输出 odom -> base_link。
+    void publishTransform(const rclcpp::Time& stamp);
 
-    // 计算校验和
+    // 计算校验和：协议使用异或校验，覆盖帧头、命令、长度和数据区。
     uint8_t calcChecksum(const std::vector<uint8_t>& data) const;
 
     // 模板：将数据按字节追加到帧
@@ -82,10 +91,13 @@ private:
     std::string odom_frame_;            // 里程计坐标系
     std::string base_frame_;            // 底盘基坐标系
     bool publish_tf_;                   // 是否发布TF
+    bool force_ros2_mode_;              // 是否持续要求 STM32 保持 ROS2 控制模式
+    bool read_only_;                    // 只读 STM32 里程计，不向下位机发送任何控制帧
     double wheel_radius_;                // 车轮半径
     double wheel_base_;                 // 轮距/轴距
     double cmd_timeout_sec_;            // 指令超时时间
     double odom_timeout_sec_;           // 里程计超时时间
+    double safety_stop_period_sec_;     // 安全停车指令最小发送周期
 
     serial::Serial serial_;              // 串口对象
 
@@ -109,13 +121,14 @@ private:
 
     rclcpp::Time last_odom_ros_time_;   // 上次里程计时间
     rclcpp::Time last_cmd_time_;        // 上次指令时间
+    rclcpp::Time last_safety_stop_time_; // 上次安全停车指令时间
 
     uint8_t last_control_mode_;         // 上次控制模式
     uint8_t last_nav_state_;            // 上次导航状态
     uint32_t last_tick_ms_;             // 上次硬件时间戳
 
     std::vector<uint8_t> rx_buffer_;    // 接收缓冲区
+    double cumulative_dist_;            // 累计行驶距离（用于协方差估计）
 };
 
 #endif  // STM32_NAV_COMM__STM32_COMM_NODE_H_
-

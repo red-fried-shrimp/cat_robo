@@ -10,16 +10,18 @@ def generate_launch_description():
             name='stm32_comm_node',
             output='screen',
             parameters=[{
-                'stm32_serial_port': '/dev/ttyUSB0',
+                'stm32_serial_port': '/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0',
                 'stm32_baud_rate': 115200,
                 'odom_frame': 'odom',
                 'base_frame': 'base_link',
                 'publish_tf': True,
+                'force_ros2_mode': True,
+                'read_only': False,
                 'wheel_radius': 0.042,
                 'wheel_base': 0.1977,
                 'cmd_timeout_sec': 0.5,
                 'odom_timeout_sec': 0.5,
+                'safety_stop_period_sec': 0.2,
             }]
         )
     ])
-

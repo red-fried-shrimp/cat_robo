@@ -13,6 +13,15 @@ amcl:
     global_frame_id: "map"                       # 全局地图坐标系
     scan_topic: /scan                             # 激光雷达话题
 
+    # 启动时用地图原点作为初始位姿，让 AMCL 尽快发布 map -> odom。
+    # 如果机器人不是从地图原点启动，可在 RViz 里重新发送 /initialpose 校正。
+    set_initial_pose: true
+    initial_pose:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      yaw: 0.0
+
     min_particles: 300                           # 最小粒子数
     max_particles: 2000                          # 最大粒子数
     resample_interval: 1                         # 重采样间隔
@@ -285,4 +294,3 @@ velocity_smoother:
     odom_duration: 0.1                           # 里程计有效时长
     deadband_velocity: [0.0, 0.0, 0.0]            # 速度死区
     velocity_timeout: 1.0                         # 速度超时时间
-
